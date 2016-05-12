@@ -112,7 +112,10 @@ class Session(object):
             method_args['captcha_sid'] = captcha_response['sid']
             method_args['captcha_key'] = captcha_response['key']
         timeout = request._api._timeout
-        response = self.requests_session.post(url, method_args, timeout=timeout)
+        proxies = request._api._proxies
+        auth = request._api._auth
+        verify = request._api._verify
+        response = self.requests_session.post(url, method_args, timeout=timeout, proxies=proxies, auth=auth, verify=verify)
         return response
 
     def get_captcha_key(self, captcha_image_url):
@@ -146,9 +149,12 @@ class Session(object):
 
 
 class API(object):
-    def __init__(self, session, timeout=10, **method_default_args):
+    def __init__(self, session, timeout=10, proxies=None, auth=None, verify=None, **method_default_args):
         self._session = session
         self._timeout = timeout
+        self._proxies = proxies
+        self._auth = auth
+        self._verify = verify
         self._method_default_args = method_default_args
 
     def __getattr__(self, method_name):
